@@ -1,0 +1,25 @@
+<Project>
+
+  <PropertyGroup>
+    <FnPackTasksAssembly Condition="'$(FnPackTasksAssembly)' == ''">$(MSBuildThisFileDirectory)../tasks/netstandard2.0/FnPack.MSBuild.dll</FnPackTasksAssembly>
+    <FnPackToolsDirectory Condition="'$(FnPackToolsDirectory)' == ''">$(MSBuildThisFileDirectory)../tools</FnPackToolsDirectory>
+    <FnPackOutputDir Condition="'$(FnPackOutputDir)' == '' and '$(ArtifactsPath)' != ''">$(ArtifactsPath)</FnPackOutputDir>
+    <FnPackOutputDir Condition="'$(FnPackOutputDir)' == ''">$(OutputPath)</FnPackOutputDir>
+  </PropertyGroup>
+
+  <UsingTask TaskName="FnPack.MSBuild.SetManifestVersion" AssemblyFile="$(FnPackTasksAssembly)" />
+  <UsingTask TaskName="FnPack.MSBuild.Build" AssemblyFile="$(FnPackTasksAssembly)" />
+
+  <Target Name="PackFpk" AfterTargets="Publish">
+    <Error Condition="'$(FnPackAppDir)' == ''" Text="请设置 FnPackAppDir" />
+    <RemoveDir Directories="$(FnPackAppDir)/app/server" />
+    <ItemGroup>
+      <FpkPublishFile Include="$(PublishDir)**/*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(FpkPublishFile)"
+          DestinationFiles="@(FpkPublishFile->'$(FnPackAppDir)/app/server/%(RecursiveDir)%(Filename)%(Extension)')" />
+    <SetManifestVersion ManifestPath="$(FnPackAppDir)/manifest" Version="$(PackageVersion)" />
+    <Build AppDirectory="$(FnPackAppDir)" OutputDirectory="$(FnPackOutputDir)" ToolsDirectory="$(FnPackToolsDirectory)" />
+  </Target>
+
+</Project>
