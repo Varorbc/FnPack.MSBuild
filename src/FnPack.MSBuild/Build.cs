@@ -45,6 +45,8 @@ public sealed class Build : Task
             return false;
         }
 
+        Log.LogMessage(MessageImportance.High, "fpk 输出目录：{0}", Path.GetFullPath(OutputDirectory));
+
         return true;
     }
 
